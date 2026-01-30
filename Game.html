@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Embedded Game</title>
+  <style>
+    body { margin: 0; font-family: system-ui, Arial, sans-serif; }
+    .wrap { padding: 12px; }
+    button { padding: 10px 12px; font-size: 16px; }
+    .log { margin-top: 12px; padding: 10px; background: #f3f3f3; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h3>Iframe Game Demo</h3>
+
+    <button id="dieBtn">Trigger Death</button>
+    <button id="winBtn">Trigger Win</button>
+
+    <div class="log" id="log">Status: alive</div>
+  </div>
+
+  <script>
+    // CHANGE THIS to your GitHub Pages origin (no trailing slash)
+    // Example: "https://zachdavies.github.io"
+    const IFRAME_ORIGIN = window.location.origin;
+
+    // CHANGE THIS to the parent site you expect to be embedded in.
+    // If the parent is always CYS, keep this:
+    const PARENT_ORIGIN = "https://chooseyourstory.com/story/viewer/default.aspx?StoryId=74558&pageId=1";
+
+    let ended = false;
+
+    function log(msg) {
+      document.getElementById("log").textContent = msg;
+    }
+
+    // Send a message up to the parent page.
+    // Call this when your real game hits a death condition.
+    function sendToParent(type, payload = {}) {
+      if (ended) return; // prevents spamming
+      ended = true;
+
+      const message = {
+        type,                // e.g., "CYS_DEATH" or "CYS_WIN"
+        payload,             // optional extra info
+        iframeOrigin: IFRAME_ORIGIN,
+        ts: Date.now()
+      };
+
+      // This is the key line:
+      window.parent.postMessage(message, PARENT_ORIGIN);
+
+      log("Sent message to parent: " + type);
+    }
+
+    // DEMO: button triggers
+    document.getElementById("dieBtn").addEventListener("click", () => {
+      sendToParent("CYS_DEATH", { reason: "button" });
+    });
+
+    document.getElementById("winBtn").addEventListener("click", () => {
+      sendToParent("CYS_WIN", { reason: "button" });
+    });
+
+    // DEMO: timer death after 20 seconds
+    let t = 20;
+    const timer = setInterval(() => {
+      if (ended) { clearInterval(timer); return; }
+      t--;
+      log("Status: alive (death in " + t + "s)");
+      if (t <= 0) {
+        clearInterval(timer);
+        sendToParent("CYS_DEATH", { reason: "timer" });
+      }
+    }, 1000);
+
+    // Example: your real death condition might look like:
+    // function checkDeath() {
+    //   if (!ended && player.hp <= 0) sendToParent("CYS_DEATH", { reason: "hp" });
+    // }
+  </script>
+</body>
+</html>
