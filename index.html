@@ -22,12 +22,8 @@
   </div>
 
   <script>
-    // CHANGE THIS to your GitHub Pages origin (no trailing slash)
-    // Example: "https://zachdavies.github.io"
     const IFRAME_ORIGIN = window.location.origin;
 
-    // CHANGE THIS to the parent site you expect to be embedded in.
-    // If the parent is always CYS, keep this:
     const PARENT_ORIGIN = "https://chooseyourstory.com/story/viewer/default.aspx?StoryId=74558&pageId=1";
 
     let ended = false;
@@ -36,26 +32,25 @@
       document.getElementById("log").textContent = msg;
     }
 
-    // Send a message up to the parent page.
-    // Call this when your real game hits a death condition.
+
     function sendToParent(type, payload = {}) {
-      if (ended) return; // prevents spamming
+      if (ended) return;
       ended = true;
 
       const message = {
-        type,                // e.g., "CYS_DEATH" or "CYS_WIN"
-        payload,             // optional extra info
+        type,                
+        payload,             
         iframeOrigin: IFRAME_ORIGIN,
         ts: Date.now()
       };
 
-      // This is the key line:
+      
       window.parent.postMessage(message, PARENT_ORIGIN);
 
       log("Sent message to parent: " + type);
     }
 
-    // DEMO: button triggers
+    
     document.getElementById("dieBtn").addEventListener("click", () => {
       sendToParent("CYS_DEATH", { reason: "button" });
     });
@@ -64,7 +59,7 @@
       sendToParent("CYS_WIN", { reason: "button" });
     });
 
-    // DEMO: timer death after 20 seconds
+    
     let t = 20;
     const timer = setInterval(() => {
       if (ended) { clearInterval(timer); return; }
@@ -76,10 +71,7 @@
       }
     }, 1000);
 
-    // Example: your real death condition might look like:
-    // function checkDeath() {
-    //   if (!ended && player.hp <= 0) sendToParent("CYS_DEATH", { reason: "hp" });
-    // }
+   
   </script>
 </body>
 </html>
