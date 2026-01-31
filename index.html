@@ -43,9 +43,12 @@
         iframeOrigin: IFRAME_ORIGIN,
         ts: Date.now()
       };
-
+function gotoCYS(pageId) {
+  
+  window.top.location.href =
+    "https://chooseyourstory.com/story/viewer/default.aspx?StoryId=74558&PageId=3";
       
-      window.parent.postMessage(message, PARENT_ORIGIN);
+      sendToParent("CYS_DEATH");
 
       log("Sent message to parent: " + type);
     }
